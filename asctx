@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+
+usage() {
+  cat <<"EOU"
+This is the context switch helper for 'aws sso login'.
+
+usage:
+  asctx        : show context list or use peco to filter context
+  asctx config : edit configuration file
+
+  asctx help   : show this message
+
+EOU
+}
+
+CONFIG_FILEPATH="${HOME}/.aws/config"
+
+if [ "$1" = "help" ]; then
+  usage
+  return 0
+fi
+
+if [ "$1" = "config" ]; then
+  vim ${CONFIG_FILEPATH}
+  return 0
+fi
+
+which aws > /dev/null 2>&1
+if [ "$?" -eq "1" ]; then
+  echo plz install awscli
+  return 1
+fi
+
+which peco > /dev/null 2>&1
+if [ "$?" -eq "1" ]; then
+  echo plz install peco
+  return 1
+fi
+
+CONTEXT=`cat ${CONFIG_FILEPATH} | grep '\[profile' | awk '{print $2}' | sed 's/\]$//' | peco`
+if [ "${CONTEXT}" = "" ]; then
+  usage
+  return 1
+fi
+
+unset AWS_PROFILE
+RESPONSE=`aws sso login --profile ${CONTEXT}`
+
+if [ "${RESPONSE}" = "" ]; then
+  return 1
+fi
+
+export AWS_PROFILE=`echo ${CONTEXT}`
+
+echo "Successfully login to ${CONTEXT}"
