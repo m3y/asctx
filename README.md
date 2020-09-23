@@ -1,7 +1,7 @@
 # asctx
 
 ## Overview
-This is the context switch helper for `aws sso login`
+This is the context switch helper for `aws sso login`.  
 This script assumes that `aws configure sso` has been done.
 - https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html
 
