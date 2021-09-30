@@ -7,7 +7,7 @@ This script assumes that `aws configure sso` has been done.
 
 ## Usage
 ```
-$ source asctx help
+$ asctx help
 This is the context switch helper for 'aws sso login'
 
 usage:
@@ -16,20 +16,21 @@ usage:
 
   asctx help       : show this message
 
-$ source asctx
+$ asctx
 # a filter using peco
 # open browser
 Successfully login to <profile>
 ```
 
-## Install(Recommended)
+## Install
 ```
 $ git clone https://github.com/m3y/asctx.git
-$ alias asctx="source /path/to/asctx/asctx"
+$ mv asctx /usr/local/bin/asctx
 ```
 
 ## Dependencies
 - [awscli v2](https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/install-cliv2-mac.html)
+- [aws-vault](https://github.com/99designs/aws-vault)
 - [peco](https://github.com/peco/peco)
 
 

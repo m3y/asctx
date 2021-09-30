@@ -33,6 +33,12 @@ if [ "$?" -eq "1" ]; then
   return 1
 fi
 
+which aws-vault > /dev/null 2>&1
+if [ "$?" -eq "1" ]; then
+  echo plz install aws-vault
+  return 1
+fi
+
 which peco > /dev/null 2>&1
 if [ "$?" -eq "1" ]; then
   echo plz install peco
@@ -45,13 +51,11 @@ if [ "${CONTEXT}" = "" ]; then
   return 1
 fi
 
-unset AWS_PROFILE
-RESPONSE=`aws sso login --profile ${CONTEXT}`
+unset AWS_VAULT
+RESPONSE=`aws-vault exec ${CONTEXT}`
 
 if [ "${RESPONSE}" = "" ]; then
   return 1
 fi
-
-export AWS_PROFILE=`echo ${CONTEXT}`
 
 echo "Successfully login to ${CONTEXT}"
