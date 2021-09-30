@@ -52,10 +52,4 @@ if [ "${CONTEXT}" = "" ]; then
 fi
 
 unset AWS_VAULT
-RESPONSE=`aws-vault exec ${CONTEXT}`
-
-if [ "${RESPONSE}" = "" ]; then
-  return 1
-fi
-
-echo "Successfully login to ${CONTEXT}"
+aws-vault exec ${CONTEXT}
