@@ -26,7 +26,7 @@ Successfully login to <profile>
 ## Install
 ```
 $ git clone https://github.com/m3y/asctx.git
-$ mv asctx /usr/local/bin/asctx
+$ alias asctx="source /path/to/asctx/asctx"
 ```
 
 ## Dependencies
