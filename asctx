@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 
 set -o pipefail
 
@@ -9,6 +9,7 @@ This is the context switch helper for 'aws sso login'.
 usage:
   asctx        : show context list or use peco to filter context
   asctx config : edit configuration file
+  asctx clear  : clear context information
 
   asctx help   : show this message
 
@@ -27,15 +28,23 @@ if [ "$1" = "config" ]; then
   return 0
 fi
 
+if [ "$1" = "clear" ]; then
+  unset AWS_PROFILE
+  unset AWS_ACCESS_KEY_ID
+  unset AWS_SECRET_ACCESS_KEY
+  unset AWS_SESSION_TOKEN
+  return 0
+fi
+
 which aws > /dev/null 2>&1
 if [ "$?" -eq "1" ]; then
   echo plz install awscli
   return 1
 fi
 
-which aws-vault > /dev/null 2>&1
+which jq > /dev/null 2>&1
 if [ "$?" -eq "1" ]; then
-  echo plz install aws-vault
+  echo plz install jq
   return 1
 fi
 
@@ -45,11 +54,30 @@ if [ "$?" -eq "1" ]; then
   return 1
 fi
 
-CONTEXT=`cat ${CONFIG_FILEPATH} | grep '\[profile' | awk '{print $2}' | sed 's/\]$//' | peco`
-if [ "${CONTEXT}" = "" ]; then
-  usage
-  return 1
+if [ "$1" != "" ]; then
+  CONTEXT=$1
+else
+  CONTEXT=`cat ${CONFIG_FILEPATH} | grep '\[profile' | awk '{print $2}' | sed 's/\]$//' | peco`
+  if [ "${CONTEXT}" = "" ]; then
+    usage
+    unset AWS_PROFILE
+    return 1
+  fi
 fi
 
-unset AWS_VAULT
-aws-vault exec ${CONTEXT}
+export AWS_PROFILE=${CONTEXT}
+echo AWS_PROFILE=${AWS_PROFILE}
+
+aws sso login | grep Successully
+SSO_CACHED_FILE=`ls ~/.aws/sso/cache/ | grep -v botocore | tail -n 1`
+
+ACCOUNT=`aws configure get sso_account_id`
+ROLE_NAME=`aws configure get sso_role_name`
+ACCESS_TOKEN=`cat ~/.aws/sso/cache/${SSO_CACHED_FILE} | jq -r '.accessToken'`
+ROLE_CREDENTIALS=`aws sso get-role-credentials --account=${ACCOUNT} --role-name=${ROLE_NAME} --access-token=${ACCESS_TOKEN}`
+
+export AWS_ACCESS_KEY_ID=`echo ${ROLE_CREDENTIALS} | jq -r '.roleCredentials.accessKeyId'`
+export AWS_SECRET_ACCESS_KEY=`echo ${ROLE_CREDENTIALS} | jq -r '.roleCredentials.secretAccessKey'`
+export AWS_SESSION_TOKEN=`echo ${ROLE_CREDENTIALS} | jq -r '.roleCredentials.sessionToken'`
+
+echo Completed setting of ${AWS_PROFILE} to shell.

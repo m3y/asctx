@@ -11,10 +11,11 @@ $ asctx help
 This is the context switch helper for 'aws sso login'
 
 usage:
-  asctx            : show context list or use peco to filter context
-  asctx config     : edit configuration file
+  asctx        : show context list or use peco to filter context
+  asctx config : edit configuration file
+  asctx clear  : clear context information
 
-  asctx help       : show this message
+  asctx help   : show this message
 
 $ asctx
 # a filter using peco
@@ -30,7 +31,6 @@ $ mv asctx /usr/local/bin/asctx
 
 ## Dependencies
 - [awscli v2](https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/install-cliv2-mac.html)
-- [aws-vault](https://github.com/99designs/aws-vault)
 - [peco](https://github.com/peco/peco)
 
 
